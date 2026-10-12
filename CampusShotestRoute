@@ -1,0 +1,166 @@
+#include <stdio.h>
+#include <limits.h>
+#include <stdbool.h>
+#include <string.h>
+#define MAX 10
+#define INF 9999
+Int graph[MAX][MAX];
+Char locations[MAX][50];
+Int dist[MAX];
+Int parent[MAX];
+Int num_locations = 5;
+Int source = -1;
+Bool is_calculated = false;
+Int minDistance(int dist[], bool sptSet[]) {
+    Int min = INF, min_index;
+    For (int v = 0; v < num_locations; v++) {
+        If (sptSet[v] == false && dist[v] <= min) {
+            Min = dist[v];
+            Min_index = v;
+        }
+    }
+    Return min_index;
+}
+Void printPath(int current_vertex) {
+    If (parent[current_vertex] == -1) {
+        Printf(“%s”, locations[current_vertex]);
+        Return;
+    }
+    printPath(parent[current_vertex]);
+    printf(“ -> %s”, locations[current_vertex]);
+}
+Void dijkstra() {
+    If (source == -1) {
+        Printf(“Please select a source location first.\n”);
+        Return;
+    }
+    Bool sptSet[MAX];
+    For (int I = 0; I < num_locations; i++) {
+        Dist[i] = INF;
+        sptSet[i] = false;
+        parent[i] = -1;
+    }
+    Dist[source] = 0;
+    For (int count = 0; count < num_locations – 1; count++) {
+        Int u = minDistance(dist, sptSet);
+        sptSet[u] = true;
+        for (int v = 0; v < num_locations; v++) {
+            if (!sptSet[v] && graph[u][v] && graph[u][v] != INF && dist[u] != INF 
+                && dist[u] + graph[u][v] < dist[v]) {
+                Dist[v] = dist[u] + graph[u][v];
+                Parent[v] = u;
+            }
+        }
+    }
+    Is_calculated = true;
+    Printf(“\nShortest distances calculated successfully.\n”);
+}
+Int main() {
+    Int choice;
+    Strcpy(locations[0], “Main Gate”);
+    Strcpy(locations[1], “Library”);
+    Strcpy(locations[2], “Computer Department”);
+    Strcpy(locations[3], “Laboratory”);
+    Strcpy(locations[4], “Auditorium”);
+    For (int I = 0; I < MAX; i++) {
+        For (int j = 0; j < MAX; j++) {
+            If (I == j) graph[i][j] = 0;
+            Else graph[i][j] = INF;
+        }
+    }
+    While (1) {
+        Printf(“\n--- Campus Shortest Route Finder ---\n”);
+        Printf(“1. Enter Campus Graph\n”);
+        Printf(“2. Display Adjacency Matrix\n”);
+        Printf(“3. Select Source Location\n”);
+        Printf(“4. Find Shortest Distance\n”);
+        Printf(“5. Display Shortest Paths\n”);
+        Printf(“6. Display Distance from Source to All Locations\n”);
+        Printf(“7. Exit\n”);
+        Printf(“Enter your choice: “);
+        Scanf(“%d”, &choice);
+        Switch (choice) {
+            Case 1:
+                Printf(“Enter number of locations (max %d): “, MAX);
+                Scanf(“%d”, &num_locations);
+                Getchar(); 
+                For(int i=0; i<num_locations; i++) {
+                    Printf(“Enter name for location %d: “, i+1);
+                    Fgets(locations[i], 50, stdin);
+                    Locations[i][strcspn(locations[i], “\n”)] = 0; 
+                }
+                Printf(“Enter the adjacency matrix (%d x %d). Use %d for INF:\n”, num_locations, num_locations, INF);
+                For (int I = 0; I < num_locations; i++) {
+                    For (int j = 0; j < num_locations; j++) {
+                        Scanf(“%d”, &graph[i][j]);
+                    }
+                }
+                Is_calculated = false;
+                Break;
+                
+            Case 2:
+                Printf(“\nAdjacency Matrix:\n”);
+                For (int I = 0; I < num_locations; i++) {
+                    For (int j = 0; j < num_locations; j++) {
+                        If (graph[i][j] == INF) printf(“INF\t”);
+                        Else printf(“%d\t”, graph[i][j]);
+                    }
+                    Printf(“\n”);
+                }
+                Break;
+                
+            Case 3:
+                Printf(“\nLocations:\n”);
+                For(int i=0; i<num_locations; i++) {
+                    Printf(“%d. %s\n”, i+1, locations[i]);
+                }
+                Printf(“Select source location (1-%d): “, num_locations);
+                Scanf(“%d”, &source);
+                Source--;
+                Is_calculated = false;
+                Break;
+                
+            Case 4:
+                Dijkstra();
+                Break;
+                
+            Case 5:
+                If (!is_calculated) {
+                    Printf(“Calculate shortest distances first (Option 4).\n”);
+                    Break;
+                }
+                Printf(“\nDestination\t\tShortest Distance\tShortest Path\n”);
+                Printf(“----------------------------------------------------------------------\n”);
+                For (int I = 0; I < num_locations; i++) {
+                    If (I != source) {
+                        Printf(“%-25s %-20d “, locations[i], dist[i]);
+                        printPath(i);
+                        printf(“\n”);
+                    }
+                }
+                Break;
+                
+            Case 6:
+                If (!is_calculated) {
+                    Printf(“Calculate shortest distances first (Option 4).\n”);
+                    Break;
+                }
+                Printf(“\nDistances from %s:\n”, locations[source]);
+                For (int I = 0; I < num_locations; i++) {
+                    If (dist[i] == INF) {
+                        Printf(“To %s: Unreachable\n”, locations[i]);
+                    } else {
+                        Printf(“To %s: %d\n”, locations[i], dist[i]);
+                    }
+                }
+                Break;
+                
+            Case 7:
+                Return 0;
+                
+            Default:
+                Printf(“Invalid choice. Please try again.\n”);
+        }
+    }
+}
+
